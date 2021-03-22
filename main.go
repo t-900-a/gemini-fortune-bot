@@ -158,7 +158,25 @@ func main() {
 	if err != nil {
 		die(err.Error())
 	}
+	if len(txHash) > 0 {
+		// tx-notify runs 3 times per transaction, we only want to run the bot 1 time per transaction
+		file, err := os.OpenFile("lastrun.txt", os.O_RDWR|os.O_CREATE, 0644)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
 
+		b, err := ioutil.ReadAll(file)
+		if string(b) == txHash {
+			log.Fatal("TX already processed")
+			os.Exit(0)
+		} else {
+			_, err := file.WriteAt([]byte(txHash), 0) // Write at 0 beginning
+			if err != nil {
+				log.Fatalf("failed writing to file: %s", err)
+			}
+		}
+	}
 	fortune, err := getFortune(fortuneFile)
 	if err != nil {
 		die(err.Error())
@@ -228,7 +246,7 @@ func main() {
 	}
 
 	fileName := "fortune_" + ti.Format("2006_01_02_15_04_05") + ".gmi"
-	file, err := os.Create(fileName)
+	file, err = os.Create(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
