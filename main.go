@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"git.sr.ht/~adnano/go-gemini"
+	"github.com/qpliu/qrencode-go/qrencode"
 )
 
 const VERSION = "1.0"
@@ -137,6 +138,7 @@ abort.`, prog, VERSION, prog, prog)
 // ---------------------------------------------------------------------------
 
 func main() {
+	ti := time.Now()
 	fortuneFile, pmtUri, txHash, err := parseArgs()
 	if err != nil {
 		die(err.Error())
@@ -156,10 +158,12 @@ func main() {
 	newLine := gemini.LineText("\n")
 	t = append(t, newLine)
 
-	link := "https://xmrchain.net/tx/" + txHash
-	txt := "Fortune requested, associated transaction found here"
-	blockExplorer := &gemini.LineLink{URL: link, Name: txt}
-	t = append(t, blockExplorer)
+	if len(txHash) > 0 {
+		link := "https://xmrchain.net/tx/" + txHash
+		txt := "Fortune requested, associated transaction found here"
+		blockExplorer := &gemini.LineLink{URL: link, Name: txt}
+		t = append(t, blockExplorer)
+	}
 
 	newLine = gemini.LineText("\n")
 	t = append(t, newLine)
@@ -170,14 +174,44 @@ func main() {
 		t = append(t, fortuneLine)
 	}
 
+	dateLine := gemini.LineQuote(ti.Format("2006/01/02 15:04:05"))
+	t = append(t, dateLine)
+
 	newLine = gemini.LineText("\n")
 	t = append(t, newLine)
 
-	txt = "Curious about today's fortune? Send any amount of Monero and you will get your very own."
-	pmtAddress := &gemini.LineLink{URL: pmtUri, Name: txt}
-	t = append(t, pmtAddress)
+	if len(pmtUri) > 0 {
+		txt := "Curious about today's fortune? Send any amount of Monero and you will get your very own."
+		pmtAddress := &gemini.LineLink{URL: pmtUri, Name: txt}
+		t = append(t, pmtAddress)
+		// generate qr code to scan
+		// only works for gemini cli clients
 
-	ti := time.Now()
+		newLine = gemini.LineText("\n")
+		t = append(t, newLine)
+
+		grid, err := qrencode.Encode(pmtUri, qrencode.ECLevelL)
+		if err != nil {
+			log.Fatal(err)
+		}
+		var b bytes.Buffer
+		grid.TerminalOutput(&b)
+		qrCode := "```" + b.String() + "```"
+		scanner := bufio.NewScanner(strings.NewReader(qrCode))
+		for scanner.Scan() {
+			fortuneLine := gemini.LineText(scanner.Text())
+			t = append(t, fortuneLine)
+		}
+
+		newLine = gemini.LineText("\n")
+		t = append(t, newLine)
+
+		txt = "Don't have any Monero? Learn more here"
+		link := "https://getmonero.org/"
+		info := &gemini.LineLink{URL: link, Name: txt}
+		t = append(t, info)
+	}
+
 	fileName := "./fortune_" + ti.Format("2006_01_02_15_04_05") + ".gmi"
 	file, err := os.Create(fileName)
 	if err != nil {
