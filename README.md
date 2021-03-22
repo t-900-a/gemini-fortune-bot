@@ -15,7 +15,7 @@ A program called `gemini-fortune-bot` will end up in your `current` directory.
 
 ## Usage
 
-    gemini-fortune-bot [/path/to/fortune/cookie/file] [payment uri] [tx hash]
+    gemini-fortune-bot [/path/to/fortune/cookie/file] [website uri] [tx hash] [payment uri] [payment view key]
     fortune -h|--help
 
 If you don't specify a fortune cookie file path (see below), _fortune_
