@@ -22,7 +22,6 @@ import (
 	"time"
 
 	"git.sr.ht/~adnano/go-gemini"
-	//"github.com/mattes/go-asciibot"
 )
 
 const VERSION = "1.0"
@@ -164,10 +163,10 @@ func main() {
 
 	newLine = gemini.LineText("\n")
 	t = append(t, newLine)
-
-	scanner := bufio.NewScanner(strings.NewReader(fortune))
+	body := "```" + botsay(fortune) + "```"
+	scanner := bufio.NewScanner(strings.NewReader(body))
 	for scanner.Scan() {
-		fortuneLine := gemini.LineQuote(scanner.Text())
+		fortuneLine := gemini.LineText(scanner.Text())
 		t = append(t, fortuneLine)
 	}
 
