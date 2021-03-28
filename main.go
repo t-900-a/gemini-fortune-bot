@@ -246,7 +246,7 @@ func main() {
 	}
 
 	fileName := "fortune_" + ti.Format("2006_01_02_15_04_05") + ".gmi"
-	file, err = os.Create(fileName)
+	file, err := os.Create(fileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -313,5 +313,25 @@ func main() {
 	err = ioutil.WriteFile("atom.xml", atomFile, 0644)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	// write entry to the gemlog
+	// assumes the script is ran within the /gemlog/ directory
+	gemlog, err := os.OpenFile("index.gmi", os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer gemlog.Close()
+
+	var offset int64 = 0
+	var whence int = 2 // end of file
+	newPosition, err := gemlog.Seek(offset, whence)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = gemlog.WriteAt([]byte("\n=> "+fileName+" "+title), newPosition) // Write at end
+	if err != nil {
+		log.Fatalf("failed writing to file: %s", err)
 	}
 }
