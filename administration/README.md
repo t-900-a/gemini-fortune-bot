@@ -46,6 +46,7 @@ You can also share your bot's generated RSS feed on Gemmit to compare popularity
 
 https://github.com/t-900-a/gemmit
 
+## Cron
 
-
-
+```bigquery
+*/5 * * * * /home/<USER>/fortune_babysitter.sh
