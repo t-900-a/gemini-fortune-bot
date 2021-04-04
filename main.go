@@ -291,6 +291,7 @@ func main() {
 		Content: rss.RAWContent{RAWContent: "Anon was provided with their fortune, ready for yours?"},
 		Links:   itemLink,
 		Date:    ti.Format("2006-01-02T15:04:05Z"),
+		ID:      fileName,
 	}
 	feedItems = append(feedItems, feedItem)
 
@@ -305,7 +306,6 @@ func main() {
 		Link:    websiteLink,
 		Items:   feedItems,
 		Updated: ti.Format("2006-01-02T15:04:05Z"),
-		ID:      fileName,
 	}
 	atomFile, err := xml.MarshalIndent(feed, "", " ")
 	if err != nil {
