@@ -305,6 +305,7 @@ func main() {
 		Link:    websiteLink,
 		Items:   feedItems,
 		Updated: ti.Format("2006-01-02T15:04:05Z"),
+		ID:      fileName,
 	}
 	atomFile, err := xml.MarshalIndent(feed, "", " ")
 	if err != nil {
